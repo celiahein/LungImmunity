@@ -1,0 +1,4 @@
+"0","tapply(da2$CellCount, da2$Macrophage, c(summary, mean))    # Summary by group using tapply"
+"2","Error in match.fun(FUN) : 
+  'c(summary, mean)' is not a function, character or symbol
+"

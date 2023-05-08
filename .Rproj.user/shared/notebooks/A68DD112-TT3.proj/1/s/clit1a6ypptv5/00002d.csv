@@ -1,0 +1,7 @@
+"0","ggplot(part3dataLLN, aes(x=Age, y=Percent, shape=Marker, color=Marker, label= Label)) +"
+"0","  geom_point() +"
+"0","  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +"
+"0","  labs(title= ""LLN immunity markers and age"", y= ""% Marker"") +"
+"0","  theme_bw()+"
+"0","  geom_text(data = subset(part3dataLLN,"
+"0","                          Label == ""P1""| Label == ""P2""| Label == ""P3"" | Label==""P4""), aes(label=Label), hjust=0, vjust=1)"

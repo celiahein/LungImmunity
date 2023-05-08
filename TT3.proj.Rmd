@@ -1,0 +1,350 @@
+---
+title: "Biometrics 1 (Bio360) Final Test"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+# A case study based on
+### Ural, B.B., Caron, D.P., Dogra, P. et al. Inhaled particulate accumulation with age impairs immune function and architecture in human lung lymph nodes. Nat Med 28, 2622–2632 (2022). https://doi.org/10.1038/s41591-022-02073-x
+
+```{r}
+library(readr)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+```
+
+
+# Study Part 1
+
+## Lung lymphs nodes (LLNs) accumulate carbon-pollutant particulates and turn black with age, unlike mesenteric lymph nodes (MLNs).
+
+### We make two linear regression models, one for LNNs and one for MLNs.
+x = Age
+y = Percent Lymph Node showing particulate accumulation
+
+```{r}
+A.da <- read_csv("AgeLNdata.csv")
+
+```
+
+```{r}
+ggplot(A.da, aes(x=Age, y=Percent, shape=Type, color=Type)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title= "Age and Lympth Node Particulate Accumulation", y= "% Particulate Accumulation") +
+  theme_bw() + theme(text = element_text(size =13))  
+
+ggsave("AgeVsLNs.pdf")
+ggsave("AgeVsLNs.png")
+```
+Subset data
+```{r}
+LLN<- A.da[A.da$Type=="LLN",]
+MLN <-A.da[A.da$Type=="MLN",]
+```
+
+```{r}
+mod.LLN <-lm(Age~Percent, data=LLN)
+summary(mod.LLN)
+```
+
+Check residuals
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(mod.LLN)
+par(mfrow=c(1,1))
+```
+
+
+
+```{r}
+mod.MLN <-lm(Age~Percent, data=MLN)
+summary(mod.MLN)
+```
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(mod.MLN)
+par(mfrow=c(1,1))
+```
+# Part 2 
+
+## The CD68+CD169− subset of LN macrophages contain the particulates.
+
+### Use an ANOVA to test if one type of macrophage disproportionately accumulates these pollutant particulates.
+
+Cell Count is # of cells that contain particulates/mm2
+```{r}
+da2 <- read_csv("part2data.csv")
+da2$Macrophage <- as.factor(da2$Macrophage)
+```
+
+```{r}
+ggplot(da2, aes(x=Macrophage, y=CellCount)) + 
+    geom_boxplot() +
+      theme_bw() + theme(text = element_text(size = 14))  
+
+ggsave("ANOVAboxplot.pdf")
+ggsave("ANOVAboxplot.png")
+```
+Using
+```{r}
+M.stats <- da2 %>% 
+  split(.$Macrophage) %>% 
+  map(summary)
+M.stats
+```
+
+```{r}
+tapply(da2$CellCount, da2$Macrophage, c(summary, mean))    # Summary by group using tapply
+```
+
+```{r}
+da2 %>% 
+  select(-Age) %>% 
+  group_by(Macrophage) %>% 
+  summarise(mean=mean(CellCount), sd=sd(CellCount), n=n())
+  
+
+```
+
+
+
+```{r}
+AnovaMod <- aov(CellCount ~ Macrophage, data=da2)
+summary(AnovaMod)
+lsr::etaSquared(AnovaMod)
+```
+
+```{r}
+tukey.res<- TukeyHSD(AnovaMod)
+tukey.res
+#plotTukeyHSD(tukey.res)
+
+```
+
+```{r}
+plot(tukey.res)
+```
+
+
+
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(AnovaMod)
+par(mfrow=c(1,1))
+```
+
+## Regression Models
+
+```{r}
+data <- read_csv("regressiondata.csv")
+```
+
+
+
+```{r}
+ggplot(data, aes(x=Age, y=Arginine_IL6, color=Macrophage)) +
+  geom_point(size=2.5) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title= "Regression Model Matching") +
+  theme_bw() +theme(text = element_text(size = 12))  
+
+
+ggsave("RegModelMatch.pdf")
+ggsave("RegModelMatch.png")
+```
+
+```{r}
+a <- data[data$Macrophage == "CD3. w/particulates",]
+
+mod.a <- lm(Arginine_IL6 ~ Age, data=a)
+summary(mod.a)
+```
+
+```{r}
+b <- data[data$Macrophage == "CD3. w/o particulates",]
+
+mod.b <- lm(Arginine_IL6 ~ Age, data=b)
+summary(mod.b)
+```
+
+```{r}
+c <- data[data$Macrophage == "CD2. w/particulates",]
+
+mod.c <- lm(Arginine_IL6 ~ Age, data=c)
+summary(mod.c)
+```
+
+```{r}
+d <- data[data$Macrophage == "CD2. w/o particulates",]
+
+mod.d <- lm(Arginine_IL6 ~ Age, data=d)
+summary(mod.d)
+```
+
+
+# Part 3
+
+## Particulate Accumulation impairs immune function
+
+### "Expression of the key activation markers CD80 and CD86 and the phagocytic marker CD36 decreased with age specifically in CD68+CD169− macrophages in LLNs but not in MLNs. In contrast, CD209 expression was not altered significantly with age in any macrophage subset at either site (Fig. 3e and Extended Data Fig. 4b). These results show that while the frequencies of LN macrophage subsets are largely maintained as age progresses, the expression of functional markers specifically in the CD68+CD169− subset within LLNs decreases with age, suggesting that particulates may have specific effects on macrophage function."
+
+```{r}
+part3data <- read_csv("part3data.csv")
+part3data$Label <- "X"
+part3data[42,6] <- "P3"
+part3data[52,6] <- "P4"
+part3data[41,6] <- "P1"
+part3data[33,6] <- "P2"
+part3data$Label <- as.factor(part3data$Label)
+
+part3dataLLN <- part3data[part3data$LNType == "LLN",]
+part3dataMLN <- part3data[part3data$LNType == "MLN",]
+```
+
+geom_text(data=subset(mtcars, wt > 4 | mpg > 25),
+            aes(wt,mpg,label=name))
+```{r}
+ggplot(part3dataLLN, aes(x=Age, y=Percent, shape=Marker, color=Marker, label= Label)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title= "LLN immunity markers and age", y= "% Marker") +
+  theme_bw()+
+  geom_text(data = subset(part3dataLLN,
+                          Label == "P1"| Label == "P2"| Label == "P3" | Label=="P4"), aes(label=Label), hjust=0, vjust=1)
+
+ggsave("LNNmarkers.pdf")
+ggsave("LNNmarkers.png")
+```
+
+```{r}
+da36 <- part3dataLLN[part3dataLLN$Marker == "CD36",]
+
+modCD36LLN <- lm(Percent ~ Age, data=da36)
+summary(modCD36LLN)
+```
+
+Check residuals
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(modCD36LLN)
+par(mfrow=c(1,1))
+```
+
+```{r}
+da209 <- part3dataLLN[part3dataLLN$Marker == "CD209",]
+
+mod209LLN<- lm(Percent ~ Age, data=da209)
+summary(mod209LLN)
+
+
+```
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(mod209LLN)
+par(mfrow=c(1,1))
+```
+
+```{r}
+da80 <- part3dataLLN[part3dataLLN$Marker == "CD80/86",]
+
+modCD80LLN <- lm(Percent ~ Age, data=da80)
+summary(modCD80LLN)
+```
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(modCD80LLN)
+par(mfrow=c(1,1))
+```
+
+```{r}
+da209b <- da209[-c(1, 11),]
+
+mod209LLNb<- lm(Percent ~ Age, data=da209b)
+summary(mod209LLNb)
+```
+
+```{r}
+ggplot(da209b, aes(x=Age, y=Percent, shape=Marker, color=Marker)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title= "LLN immunity markers and age", y= "% Marker") +
+  theme_bw()
+```
+
+
+```{r}
+da36.8086<- part3dataLLN[part3dataLLN$Marker == "CD36" | part3dataLLN$Marker == "CD80/86",]
+
+modcomLLN<- lm(Percent ~ Age, data=da36.8086)
+summary(modcomLLN)
+```
+
+
+
+```{r}
+ggplot(part3dataMLN, aes(x=Age, y=Percent, shape=Marker, color=Marker)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title= "MLN immunity markers and age", y= "% Marker") +
+  theme_bw()
+
+ggsave("MLNmarkers.pdf")
+ggsave("MLNmarkers.png")
+```
+
+```{r}
+da36M <- part3dataMLN[part3dataMLN$Marker == "CD36",]
+
+modCD36MLN <- lm(Percent ~ Age, data=da36M)
+summary(modCD36MLN)
+```
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(modCD36MLN)
+par(mfrow=c(1,1))
+```
+
+```{r}
+da209M <- part3dataMLN[part3dataMLN$Marker == "CD209",]
+
+mod209MLN <- lm(Percent ~ Age, data=da209M)
+summary(mod209MLN)
+```
+
+
+```{r fig.height=3, fig.width=4.5}
+
+par(mfrow=c(2,2))
+plot(mod209MLN)
+par(mfrow=c(1,1))
+```
+
+```{r}
+da80M <- part3dataMLN[part3dataMLN$Marker == "CD80/86",]
+
+mod80MLN <- lm(Percent ~ Age, data=da80M)
+summary(mod80MLN)
+```
+
+
+```{r fig.height=3, fig.width=4.5}
+par(mfrow=c(2,2))
+plot(mod80MLN)
+par(mfrow=c(1,1))
+```
+
+
+
+
+
+
+
+

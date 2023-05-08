@@ -1,0 +1,5 @@
+"0","ggplot(part3dataMLN, aes(x=Age, y=Percent, shape=Marker, color=Marker)) +"
+"0","  geom_point() +"
+"0","  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +"
+"0","  labs(title= ""MLN immunity markers and age"", y= ""% Marker"") +"
+"0","  theme_bw()"

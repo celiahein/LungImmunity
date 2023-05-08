@@ -1,0 +1,18 @@
+"0","part3data <- read_csv(""part3data.csv"")"
+"2","[1mRows: [22m[34m120[39m [1mColumns: [22m[34m5[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m (3): Marker, MacrophageType, LNType
+[32mdbl[39m (2): Age, Percent"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","part3data$Label <- ""X"""
+"0","part3data[42,6] <- ""P3"""
+"0","part3data[52,6] <- ""P4"""
+"0","part3data[41,6] <- ""P1"""
+"0","part3data[33,6] <- ""P2"""
+"0","part3data$Label <- as.factor(part3data$Label)"
+"0",""
+"0","part3dataLLN <- part3data[part3data$LNType == ""LLN"",]"
+"0","part3dataMLN <- part3data[part3data$LNType == ""MLN"",]"

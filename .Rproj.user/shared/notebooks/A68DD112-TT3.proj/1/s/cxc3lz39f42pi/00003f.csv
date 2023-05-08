@@ -1,0 +1,4 @@
+"0","da2 %>% "
+"0","  select(-Age) %>% "
+"0","  group_by(Macrophage) %>% "
+"0","  summarise(mean=mean(CellCount), sd=sd(CellCount), n=n())"

@@ -1,0 +1,28 @@
+{
+    "id": "6BE3B18F",
+    "path": "~/Documents/Bio360/BIO360_2023Winter/TermTests/TT3/TT3.proj.Rmd",
+    "project_path": "TT3.proj.Rmd",
+    "type": "r_markdown",
+    "hash": "1234881096",
+    "contents": "",
+    "dirty": false,
+    "created": 1679353554080.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "chunk_output_type": "inline",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "127,6",
+        "scrollLine": "126"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1680627597,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1680627597827,
+    "read_only": false,
+    "read_only_alternatives": []
+}
